@@ -84,7 +84,7 @@ SpriteRenderer:
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 0.5, y: 0.37}
+  m_Size: {x: 6.25, y: 4.625}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -105,7 +105,7 @@ Rigidbody2D:
   m_Mass: 1
   m_LinearDrag: 0
   m_AngularDrag: 0.05
-  m_GravityScale: 1
+  m_GravityScale: 3
   m_Material: {fileID: 0}
   m_IncludeLayers:
     serializedVersion: 2
@@ -161,10 +161,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2321a63a175024247a64c89bc75fbf47, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  walkSpeed: 5
-  runSpeed: 8
-  airWalkSpeed: 3
-  jumpImpulse: 10
+  walkSpeed: 10
+  runSpeed: 15
+  airWalkSpeed: 8
+  jumpImpulse: 18
   _isMoving: 0
   _isRunning: 0
   _isFacingRight: 1
@@ -359,6 +359,6 @@ CapsuleCollider2D:
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: 0.07767838, y: -0.35386813}
+  m_Offset: {x: 0.5, y: -0.35386813}
   m_Size: {x: 1.6756107, y: 3.6089375}
   m_Direction: 0

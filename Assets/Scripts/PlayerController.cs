@@ -13,6 +13,10 @@ public class PlayerController : MonoBehaviour
     public float jumpImpulse = 10f;
     public float wallSlideSpeed = 5f;
 
+    public bool enableDoubleJump = true;
+    public bool enableWallSlide = true;
+    public bool enableDash = true;
+
     private bool canDoubleJump = false;
 
     private bool canDash = true;
@@ -146,7 +150,7 @@ public class PlayerController : MonoBehaviour
             // no wall glide
             // rb.velocity = new Vector2(moveInput.x * CurrentMoveSpeed, rb.velocity.y);
 
-            if (touchingDirections.IsOnWall && !touchingDirections.IsGrounded && rb.velocity.y < 0)
+            if (enableWallSlide && touchingDirections.IsOnWall && !touchingDirections.IsGrounded && rb.velocity.y < 0)
             {
                 // Wall sliding
                 rb.velocity = new Vector2(rb.velocity.x, -wallSlideSpeed);
@@ -217,9 +221,12 @@ public class PlayerController : MonoBehaviour
                 // Regular jump
                 animator.SetTrigger(AnimationStrings.jumpTrigger);
                 rb.velocity = new Vector2(rb.velocity.x, jumpImpulse);
-                canDoubleJump = true;
+                if (enableDoubleJump)
+                {
+                    canDoubleJump = true;
+                }
             }
-            else if (canDoubleJump)
+            else if (enableDoubleJump && canDoubleJump)
             {
                 // Double jump
                 animator.SetTrigger(AnimationStrings.doubleJumpTrigger);
@@ -239,7 +246,7 @@ public class PlayerController : MonoBehaviour
 
     public void OnDash(InputAction.CallbackContext context)
     {
-        if (context.started && CanMove && IsMoving && !isDashing && canDash)
+        if (enableDash && context.started && CanMove && IsMoving && !isDashing && canDash)
         {
             StartCoroutine(DashCoroutine());
         }

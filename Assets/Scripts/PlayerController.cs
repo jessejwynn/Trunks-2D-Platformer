@@ -12,6 +12,8 @@ public class PlayerController : MonoBehaviour
     public float airWalkSpeed = 3f;
     public float jumpImpulse = 10f;
 
+    private bool canDoubleJump = false;
+
     private bool canDash = true;
     private bool isDashing;
     public float walkDashSpeed = 15f;
@@ -184,12 +186,31 @@ public class PlayerController : MonoBehaviour
 
     public void OnJump(InputAction.CallbackContext context)
     {
-        //check if alive as well
-        if (context.started && touchingDirections.IsGrounded && CanMove) 
-        {
-            animator.SetTrigger(AnimationStrings.jumpTrigger);
-            rb.velocity = new Vector2(rb.velocity.x, jumpImpulse);
+        //no double jump
+        //if (context.started && touchingDirections.IsGrounded && CanMove) 
+        //{
+        //    animator.SetTrigger(AnimationStrings.jumpTrigger);
+        //    rb.velocity = new Vector2(rb.velocity.x, jumpImpulse);
 
+        //}
+
+        //double jump
+        if (context.started && CanMove)
+        {
+            if (touchingDirections.IsGrounded)
+            {
+                // Regular jump
+                animator.SetTrigger(AnimationStrings.jumpTrigger);
+                rb.velocity = new Vector2(rb.velocity.x, jumpImpulse);
+                canDoubleJump = true;
+            }
+            else if (canDoubleJump)
+            {
+                // Double jump
+                animator.SetTrigger(AnimationStrings.jumpTrigger);
+                rb.velocity = new Vector2(rb.velocity.x, jumpImpulse);
+                canDoubleJump = false;
+            }
         }
     }
 

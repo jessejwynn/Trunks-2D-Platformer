@@ -12,6 +12,13 @@ public class PlayerController : MonoBehaviour
     public float airWalkSpeed = 3f;
     public float jumpImpulse = 10f;
 
+    private bool canDash = true;
+    private bool isDashing;
+    public float walkDashSpeed = 15f;
+    public float runDashSpeed = 25f;
+    public float dashDuration = 0.2f;
+    public float dashCooldown = 1f;
+
     Vector2 moveInput;
     TouchingDirections touchingDirections;
 
@@ -128,8 +135,12 @@ public class PlayerController : MonoBehaviour
 
     void FixedUpdate()
     {
-        // rb.velocity = new Vector2(moveInput.x * walkSpeed * Time.fixedDeltaTime, rb.velocity.y)
-        rb.velocity = new Vector2(moveInput.x * CurrentMoveSpeed , rb.velocity.y);
+        if (!isDashing)
+        {
+
+            // rb.velocity = new Vector2(moveInput.x * walkSpeed * Time.fixedDeltaTime, rb.velocity.y)
+            rb.velocity = new Vector2(moveInput.x * CurrentMoveSpeed, rb.velocity.y);
+        }
 
         animator.SetFloat(AnimationStrings.yVelocity, rb.velocity.y);
     }
@@ -188,5 +199,31 @@ public class PlayerController : MonoBehaviour
         {
             animator.SetTrigger(AnimationStrings.attackTrigger);
         }
+    }
+
+    public void OnDash(InputAction.CallbackContext context)
+    {
+        if (context.started && CanMove && IsMoving && !isDashing && canDash)
+        {
+            StartCoroutine(DashCoroutine());
+        }
+    }
+
+    private IEnumerator DashCoroutine()
+    {
+        canDash = false;
+        isDashing = true;
+        float originalGravity = rb.gravityScale;
+        rb.gravityScale = 0f;
+        animator.SetTrigger(AnimationStrings.dashTrigger);
+        float currentDashSpeed = IsRunning ? runDashSpeed : walkDashSpeed;
+        rb.velocity = new Vector2(IsFacingRight ? currentDashSpeed : -currentDashSpeed, 0f);
+        yield return new WaitForSeconds(dashDuration);
+        rb.velocity = new Vector2(0, rb.velocity.y);
+        animator.ResetTrigger(AnimationStrings.dashTrigger);
+        rb.gravityScale = originalGravity;
+        isDashing = false;
+        yield return new WaitForSeconds(dashCooldown);
+        canDash = true;
     }
 }

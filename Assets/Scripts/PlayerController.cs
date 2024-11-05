@@ -12,6 +12,7 @@ public class PlayerController : MonoBehaviour
     public float airWalkSpeed = 3f;
     public float jumpImpulse = 10f;
 
+
     private bool canDoubleJump = false;
 
     private bool canDash = true;
@@ -207,7 +208,7 @@ public class PlayerController : MonoBehaviour
             else if (canDoubleJump)
             {
                 // Double jump
-                animator.SetTrigger(AnimationStrings.jumpTrigger);
+                animator.SetTrigger(AnimationStrings.doubleJumpTrigger);
                 rb.velocity = new Vector2(rb.velocity.x, jumpImpulse);
                 canDoubleJump = false;
             }

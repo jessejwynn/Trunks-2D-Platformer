@@ -11,7 +11,7 @@ public class PlayerController : MonoBehaviour
     public float runSpeed = 8f;
     public float airWalkSpeed = 3f;
     public float jumpImpulse = 10f;
-
+    public float wallSlideSpeed = 5f;
 
     private bool canDoubleJump = false;
 
@@ -142,7 +142,21 @@ public class PlayerController : MonoBehaviour
         {
 
             // rb.velocity = new Vector2(moveInput.x * walkSpeed * Time.fixedDeltaTime, rb.velocity.y)
-            rb.velocity = new Vector2(moveInput.x * CurrentMoveSpeed, rb.velocity.y);
+
+            // no wall glide
+            // rb.velocity = new Vector2(moveInput.x * CurrentMoveSpeed, rb.velocity.y);
+
+            if (touchingDirections.IsOnWall && !touchingDirections.IsGrounded && rb.velocity.y < 0)
+            {
+                // Wall sliding
+                rb.velocity = new Vector2(rb.velocity.x, -wallSlideSpeed);
+                animator.SetBool(AnimationStrings.isOnWall, true);
+            }
+            else
+            {
+                rb.velocity = new Vector2(moveInput.x * CurrentMoveSpeed, rb.velocity.y);
+                animator.SetBool(AnimationStrings.isOnWall, false);
+            }
         }
 
         animator.SetFloat(AnimationStrings.yVelocity, rb.velocity.y);

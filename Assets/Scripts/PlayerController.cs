@@ -12,6 +12,7 @@ public class PlayerController : MonoBehaviour
     public float airWalkSpeed = 3f;
     public float jumpImpulse = 10f;
     public float wallSlideSpeed = 5f;
+    public float gravityScale = 3f;
 
     public bool enableDoubleJump = true;
     public bool enableWallSlide = true;
@@ -144,6 +145,11 @@ public class PlayerController : MonoBehaviour
     {
         if (!isDashing)
         {
+            // Faster Fall
+            if (rb.velocity.y < 0)
+            {
+                rb.gravityScale = gravityScale * 1.5f;
+            }
 
             // rb.velocity = new Vector2(moveInput.x * walkSpeed * Time.fixedDeltaTime, rb.velocity.y)
 
@@ -238,7 +244,7 @@ public class PlayerController : MonoBehaviour
 
     public void OnAttack(InputAction.CallbackContext context)
     {
-        if (context.started)
+        if (context.started && !isDashing)
         {
             animator.SetTrigger(AnimationStrings.attackTrigger);
         }

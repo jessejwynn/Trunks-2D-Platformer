@@ -13,6 +13,10 @@ public class PlayerController : MonoBehaviour
     public float jumpImpulse = 10f;
     public float wallSlideSpeed = 5f;
 
+    public bool enableDoubleJump = true;
+    public bool enableWallSlide = true;
+    public bool enableDash = true;
+
     private bool canDoubleJump = false;
 
     private bool canDash = true;
@@ -22,6 +26,13 @@ public class PlayerController : MonoBehaviour
     public float dashDuration = 0.2f;
     public float dashCooldown = 1f;
 
+    private float wallSlidingSpeed = 2f;
+    private bool isWallSliding;
+    [SerializeField] private LayerMask groundLayer;
+    [SerializeField] private LayerMask wallLayer;
+    [SerializeField] private Transform wallCheck;
+    [SerializeField] private Transform groundCheck;
+    
     Vector2 moveInput;
     TouchingDirections touchingDirections;
 
@@ -146,10 +157,11 @@ public class PlayerController : MonoBehaviour
             // no wall glide
             // rb.velocity = new Vector2(moveInput.x * CurrentMoveSpeed, rb.velocity.y);
 
-            if (touchingDirections.IsOnWall && !touchingDirections.IsGrounded && rb.velocity.y < 0)
+            if (enableWallSlide && touchingDirections.IsOnWall && !touchingDirections.IsGrounded && rb.velocity.y < 0)
             {
                 // Wall sliding
-                rb.velocity = new Vector2(rb.velocity.x, -wallSlideSpeed);
+                //rb.velocity = new Vector2(rb.velocity.x, -wallSlideSpeed);
+                rb.velocity = new Vector2(rb.velocity.x, Mathf.Clamp(rb.velocity.y, -wallSlidingSpeed, float.MaxValue));
                 animator.SetBool(AnimationStrings.isOnWall, true);
             }
             else
@@ -215,11 +227,14 @@ public class PlayerController : MonoBehaviour
             if (touchingDirections.IsGrounded)
             {
                 // Regular jump
-                animator.SetTrigger(AnimationStrings.jumpTrigger);
+                //animator.SetTrigger(AnimationStrings.jumpTrigger);
                 rb.velocity = new Vector2(rb.velocity.x, jumpImpulse);
-                canDoubleJump = true;
+                if (enableDoubleJump)
+                {
+                    canDoubleJump = true;
+                }
             }
-            else if (canDoubleJump)
+            else if (enableDoubleJump && canDoubleJump)
             {
                 // Double jump
                 animator.SetTrigger(AnimationStrings.doubleJumpTrigger);
@@ -239,7 +254,7 @@ public class PlayerController : MonoBehaviour
 
     public void OnDash(InputAction.CallbackContext context)
     {
-        if (context.started && CanMove && IsMoving && !isDashing && canDash)
+        if (enableDash && context.started && CanMove && IsMoving && !isDashing && canDash)
         {
             StartCoroutine(DashCoroutine());
         }

@@ -44,6 +44,9 @@ public class PlayerController : MonoBehaviour
     public float runDashSpeed = 25f;
     public float dashDuration = 0.2f;
 
+    public ParticleSystem dust;
+    public ParticleSystem landingPoof;
+
     Vector2 moveInput;
     TouchingDirections touchingDirections;
     Rigidbody2D rb;
@@ -139,14 +142,16 @@ public class PlayerController : MonoBehaviour
         touchingDirections = GetComponent<TouchingDirections>();
     }
 
+
     private void Update()
     {
         lastOnGroundTime -= Time.deltaTime;
         lastPressedJumpTime -= Time.deltaTime;
         lastOnWallTime -= Time.deltaTime;
 
-        if (touchingDirections.IsGrounded)
+        if (touchingDirections.IsGrounded && lastOnGroundTime <= 0)
         {
+            CreateLandingPoof();
             lastOnGroundTime = coyoteTime;
             canDoubleJump = true; // Reset double jump when grounded
         }
@@ -238,10 +243,12 @@ public class PlayerController : MonoBehaviour
         if (moveInput.x > 0 && !IsFacingRight)
         {
             IsFacingRight = true;
+            CreateDust();
         }
         else if (moveInput.x < 0 && IsFacingRight)
         {
             IsFacingRight = false;
+            CreateDust();
         }
     }
 
@@ -276,6 +283,7 @@ public class PlayerController : MonoBehaviour
         lastOnGroundTime = 0;
         lastPressedJumpTime = 0;
         animator.SetTrigger(AnimationStrings.jumpTrigger);
+        CreateDust();
     }
 
     private void DoubleJump()
@@ -283,6 +291,7 @@ public class PlayerController : MonoBehaviour
         rb.velocity = new Vector2(rb.velocity.x, jumpImpulse);
         canDoubleJump = false;
         animator.SetTrigger(AnimationStrings.doubleJumpTrigger);
+        CreateDust();
     }
 
     private void WallJump()
@@ -341,4 +350,16 @@ public class PlayerController : MonoBehaviour
     {
         rb.gravityScale = scale;
     }
+
+    void CreateDust() {
+        dust.Play();
+    }
+
+    void CreateLandingPoof()
+{
+    if (landingPoof != null)
+    {
+        landingPoof.Play();
+    }
+}
 }

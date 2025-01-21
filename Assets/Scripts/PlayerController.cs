@@ -47,6 +47,10 @@ public class PlayerController : MonoBehaviour
     public ParticleSystem dust;
     public ParticleSystem landingPoof;
 
+    // SPAWN & RESET
+    public Transform spawnPoint; // Assign this in the Inspector
+    public float fallThreshold = -10f; // Y-level below which the player resets
+
     Vector2 moveInput;
     TouchingDirections touchingDirections;
     Rigidbody2D rb;
@@ -137,6 +141,7 @@ public class PlayerController : MonoBehaviour
 
     private void Awake()
     {
+        DontDestroyOnLoad(this.gameObject);
         rb = GetComponent<Rigidbody2D>();
         animator = GetComponent<Animator>();
         touchingDirections = GetComponent<TouchingDirections>();
@@ -190,6 +195,11 @@ public class PlayerController : MonoBehaviour
         {
             // Apply jump cut multiplier when the jump button is released
             rb.velocity = new Vector2(rb.velocity.x, rb.velocity.y * jumpCutMultiplier);
+        }
+
+        if (transform.position.y < fallThreshold)
+        {
+            ResetToSpawn();
         }
     }
 
@@ -351,15 +361,34 @@ public class PlayerController : MonoBehaviour
         rb.gravityScale = scale;
     }
 
-    void CreateDust() {
+    public bool enablePoof = true; 
+    void CreateDust()
+{
+    if (enablePoof && dust != null)
+    {
         dust.Play();
     }
+}
 
     void CreateLandingPoof()
-{
-    if (landingPoof != null)
     {
-        landingPoof.Play();
+        if (enablePoof && landingPoof != null)
+        {
+            landingPoof.Play();
+        }
     }
-}
+
+    private void ResetToSpawn()
+    {
+        Debug.Log("Player fell below the threshold. Resetting to spawn.");
+        if (spawnPoint != null)
+        {
+            transform.position = spawnPoint.position;
+            rb.velocity = Vector2.zero; // Stop any ongoing movement
+        }
+        else
+        {
+            Debug.LogError("Spawn point is not assigned!");
+        }
+    }
 }

@@ -9,7 +9,6 @@ public class TouchingDirections : MonoBehaviour
     public float wallDistance = 0.2f;
     public float ceilingDistance = 0.05f;
 
-    // Rigidbody2D rb;
     CapsuleCollider2D touchingCol; 
     Animator animator;
 
@@ -18,65 +17,57 @@ public class TouchingDirections : MonoBehaviour
     RaycastHit2D[] ceilingHits = new RaycastHit2D[5];
 
     [SerializeField]
-    private bool _isGrounded = true;
+    private bool _isGrounded;
     public bool IsGrounded 
-        {get{
-                return _isGrounded;
-            } private set
-            {
-                _isGrounded = value;
-                animator.SetBool(AnimationStrings.isGrounded, value);
-            }
+    {
+        get { return _isGrounded; }
+        private set
+        {
+            _isGrounded = value;
+            animator.SetBool(AnimationStrings.isGrounded, value);
         }
+    }
 
     [SerializeField]
-    private bool _isOnWall = true;
+    private bool _isOnWall;
     private Vector2 wallCheckDirection => gameObject.transform.localScale.x > 0 ? Vector2.right : Vector2.left;
     public bool IsOnWall 
-        {get{
-                return _isOnWall;
-            } private set
-            {
-                _isOnWall = value;
-                animator.SetBool(AnimationStrings.isOnWall, value);
-            }
+    {
+        get { return _isOnWall; }
+        private set
+        {
+            _isOnWall = value;
+            animator.SetBool(AnimationStrings.isOnWall, value);
         }
+    }
 
     [SerializeField]
-    private bool _isOnCeiling = true;
+    private bool _isOnCeiling;
     public bool IsOnCeiling
-        {get{
-                return _isOnCeiling;
-            } private set
-            {
-                _isOnCeiling = value;
-                animator.SetBool(AnimationStrings.isOnCeiling, value);
-            }
+    {
+        get { return _isOnCeiling; }
+        private set
+        {
+            _isOnCeiling = value;
+            animator.SetBool(AnimationStrings.isOnCeiling, value);
         }
-    
+    }
+
     private void Awake()
     {
-        // rb = GetComponent<Rigidbody2D>();
         touchingCol = GetComponent<CapsuleCollider2D>();
         animator = GetComponent<Animator>();
     }
 
     void FixedUpdate() 
     {
+        // Ground detection
         IsGrounded = touchingCol.Cast(Vector2.down, castFilter, groundHits, groundDistance) > 0;
 
-        // Only check for wall and ceiling if the character is not grounded
-        if (!IsGrounded)
-        {
-            IsOnWall = touchingCol.Cast(wallCheckDirection, castFilter, wallHits, wallDistance) > 0;
-            IsOnCeiling = touchingCol.Cast(Vector2.up, castFilter, ceilingHits, ceilingDistance) > 0;
-        }
-        else
-        {
-            // If grounded, make sure wall and ceiling are set to false
-            IsOnWall = false;
-            IsOnCeiling = false;
-        }
-    }
+        // Wall detection (only check if not grounded)
+        IsOnWall = !IsGrounded && touchingCol.Cast(wallCheckDirection, castFilter, wallHits, wallDistance) > 0;
 
+        // Ceiling detection (only check if not grounded)
+        IsOnCeiling = !IsGrounded && touchingCol.Cast(Vector2.up, castFilter, ceilingHits, ceilingDistance) > 0;
+    }
 }

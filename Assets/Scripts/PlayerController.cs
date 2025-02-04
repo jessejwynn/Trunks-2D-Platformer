@@ -6,11 +6,11 @@ using UnityEngine.InputSystem;
 [RequireComponent(typeof(Rigidbody2D), typeof(TouchingDirections))]
 public class PlayerController : MonoBehaviour
 {
-    public float walkSpeed = 5f;
-    public float runSpeed = 8f;
-    public float airWalkSpeed = 3f;
-    public float jumpImpulse = 10f;
-    public float wallSlideSpeed = 5f;
+    public float walkSpeed = 10f;
+    public float runSpeed = 15f;
+    public float airWalkSpeed = 8f;
+    public float jumpImpulse = 25f;
+    public float wallSlideSpeed = 7f;
     public float gravityScale = 3f;
     public float maxFallSpeed = -15f;
     public float coyoteTime = 0.2f;
@@ -44,6 +44,12 @@ public class PlayerController : MonoBehaviour
     public float runDashSpeed = 25f;
     public float dashDuration = 0.2f;
 
+    // Climbing variables
+    public float climbSpeed = 8f;
+    private bool isLadder = false;
+    private bool isClimbing = false;
+
+
     public ParticleSystem dust;
     public ParticleSystem landingPoof;
 
@@ -62,7 +68,11 @@ public class PlayerController : MonoBehaviour
         {
             if (CanMove)
             {
-                if (IsMoving && !touchingDirections.IsOnWall)
+                if (isClimbing) // Add this condition for climbing
+                {
+                    return walkSpeed; // Use normal walk speed while climbing
+                }
+                else if (IsMoving && !touchingDirections.IsOnWall)
                 {
                     if (touchingDirections.IsGrounded)
                     {
@@ -172,10 +182,13 @@ public class PlayerController : MonoBehaviour
             isJumpCut = true;
         }
 
+        // Allow jumping even when climbing
         if (CanJump() && lastPressedJumpTime > 0)
         {
             isJumping = true;
             Jump();
+            isClimbing = false; // Exit climbing state when jumping
+            animator.SetBool("isClimbing", false); // Stop climbing animation
         }
         else if (enableWallJump && CanWallJump() && lastPressedJumpTime > 0)
         {
@@ -201,10 +214,73 @@ public class PlayerController : MonoBehaviour
         {
             ResetToSpawn();
         }
+
+        if (isLadder)
+        {
+            if (Mathf.Abs(moveInput.y) > 0f) // If there's vertical input
+            {
+                isClimbing = true;
+                animator.SetBool("isClimbing", true); // Trigger climbing animation
+                rb.gravityScale = 0f; // Explicitly set gravity scale
+                Debug.Log("Climbing: " + isClimbing);
+            }
+            else if (isClimbing) // If no input but still on ladder
+            {
+                rb.velocity = new Vector2(rb.velocity.x, 0); // Stop vertical movement
+                rb.gravityScale = 0f; // Explicitly set gravity scale
+                Debug.Log("Idle on ladder. isClimbing: " + isClimbing);
+            }
+        }
+        else
+        {
+            isClimbing = false;
+            animator.SetBool("isClimbing", false); // Stop climbing animation
+            rb.gravityScale = gravityScale; // Restore gravity when not climbing
+            Debug.Log("Not on ladder. isClimbing: " + isClimbing);
+        }
+
+        // Jump logic
+        if (CanJump() && lastPressedJumpTime > 0)
+        {
+            isJumping = true;
+            Jump();
+            isClimbing = false; // Exit climbing state when jumping
+            animator.SetBool("isClimbing", false); // Stop climbing animation
+            Debug.Log("Jumped off ladder. isClimbing: " + isClimbing);
+        }
+        else if (enableWallJump && CanWallJump() && lastPressedJumpTime > 0)
+        {
+            WallJump();
+        }
+        else if (enableDoubleJump && canDoubleJump && lastPressedJumpTime > 0 && !touchingDirections.IsGrounded)
+        {
+            DoubleJump();
+        }
     }
 
     void FixedUpdate()
     {
+    if (isClimbing)
+        {
+            rb.gravityScale = 0f; // Completely disable gravity
+
+            if (Mathf.Abs(moveInput.y) > 0f) // If there's vertical input
+            {
+                rb.velocity = new Vector2(rb.velocity.x, moveInput.y * climbSpeed); // Move up or down
+            }
+            else // If idle while climbing
+            {
+                rb.velocity = new Vector2(rb.velocity.x, 0); // Stop vertical movement
+            }
+
+            // Allow normal horizontal movement while climbing
+            rb.velocity = new Vector2(moveInput.x * CurrentMoveSpeed, rb.velocity.y);
+        }
+        else
+        {
+            rb.gravityScale = gravityScale; // Restore gravity when not climbing
+        }
+
         if (!isDashing)
         {
             if (rb.velocity.y < 0)
@@ -237,7 +313,6 @@ public class PlayerController : MonoBehaviour
                 animator.SetBool(AnimationStrings.isOnWall, false);
             }
         }
-
         animator.SetFloat(AnimationStrings.yVelocity, rb.velocity.y);
     }
 
@@ -289,11 +364,12 @@ public class PlayerController : MonoBehaviour
 
     private void Jump()
     {
-        rb.velocity = new Vector2(rb.velocity.x, jumpImpulse);
+        rb.velocity = new Vector2(rb.velocity.x, jumpImpulse); // Apply jump force
         lastOnGroundTime = 0;
         lastPressedJumpTime = 0;
         animator.SetTrigger(AnimationStrings.jumpTrigger);
         CreateDust();
+        Debug.Log("Jump executed. Velocity: " + rb.velocity);
     }
 
     private void DoubleJump()
@@ -348,7 +424,7 @@ public class PlayerController : MonoBehaviour
 
     private bool CanJump()
     {
-        return lastOnGroundTime > 0 && !isJumping;
+        return (lastOnGroundTime > 0 || isClimbing) && !isJumping;
     }
 
     private bool CanWallJump()
@@ -391,4 +467,24 @@ public class PlayerController : MonoBehaviour
             Debug.LogError("Spawn point is not assigned!");
         }
     }
+
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (collision.CompareTag("Ladder"))
+        {
+            isLadder = true;
+            Debug.Log("Entered ladder area. isLadder: " + isLadder);
+        }
+    }
+
+    private void OnTriggerExit2D(Collider2D collision)
+    {
+        if (collision.CompareTag("Ladder"))
+        {
+            isLadder = false;
+            isClimbing = false;
+            Debug.Log("Exited ladder area. isLadder: " + isLadder);
+        }
+    }
+
 }

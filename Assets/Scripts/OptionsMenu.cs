@@ -49,16 +49,16 @@ public class OptionsMenu : MonoBehaviour
         jumpImpulseSlider.value = playerController.jumpImpulse;
 
         // Add listeners for toggles
-        doubleJumpToggle.onValueChanged.AddListener(isOn => playerController.enableDoubleJump = isOn);
-        wallSlideToggle.onValueChanged.AddListener(isOn => playerController.enableWallSlide = isOn);
-        dashToggle.onValueChanged.AddListener(isOn => playerController.enableDash = isOn);
-        slideToggle.onValueChanged.AddListener(isOn => playerController.enableSlide = isOn);
-        wallJumpToggle.onValueChanged.AddListener(isOn => playerController.enableWallJump = isOn);
-        poofToggle.onValueChanged.AddListener(isOn => playerController.enablePoof = isOn);
+        doubleJumpToggle.onValueChanged.AddListener(SetDoubleJump);
+        wallSlideToggle.onValueChanged.AddListener(SetWallSlide);
+        dashToggle.onValueChanged.AddListener(SetDash);
+        slideToggle.onValueChanged.AddListener(SetSlide);
+        wallJumpToggle.onValueChanged.AddListener(SetWallJump);
+        poofToggle.onValueChanged.AddListener(SetPoof);
 
         // Add listeners for sliders
-        gravityScaleSlider.onValueChanged.AddListener(value => playerController.gravityScale = value);
-        jumpImpulseSlider.onValueChanged.AddListener(value => playerController.jumpImpulse = value);
+        gravityScaleSlider.onValueChanged.AddListener(SetGravityScale);
+        jumpImpulseSlider.onValueChanged.AddListener(SetJumpImpulse);
     }
 
     // Public methods for toggles
@@ -71,15 +71,67 @@ public class OptionsMenu : MonoBehaviour
         }
     }
 
+    public void SetWallSlide(bool isOn)
+    {
+        Debug.Log("Wall Slide toggled: " + isOn);
+        if (playerController != null)
+        {
+            playerController.enableWallSlide = isOn;
+        }
+    }
 
-    public void SetWallSlide(bool isOn) => playerController.enableWallSlide = isOn;
-    public void SetDash(bool isOn) => playerController.enableDash = isOn;
-    public void SetSlide(bool isOn) => playerController.enableSlide = isOn;
-    public void SetWallJump(bool isOn) => playerController.enableWallJump = isOn;
-    public void SetPoof(bool isOn) => playerController.enablePoof = isOn;
+    public void SetDash(bool isOn)
+    {
+        Debug.Log("Dash toggled: " + isOn);
+        if (playerController != null)
+        {
+            playerController.enableDash = isOn;
+        }
+    }
+
+    public void SetSlide(bool isOn)
+    {
+        Debug.Log("Slide toggled: " + isOn);
+        if (playerController != null)
+        {
+            playerController.enableSlide = isOn;
+        }
+    }
+
+    public void SetWallJump(bool isOn)
+    {
+        Debug.Log("Wall Jump toggled: " + isOn);
+        if (playerController != null)
+        {
+            playerController.enableWallJump = isOn;
+        }
+    }
+
+    public void SetPoof(bool isOn)
+    {
+        Debug.Log("Poof toggled: " + isOn);
+        if (playerController != null)
+        {
+            playerController.enablePoof = isOn;
+        }
+    }
 
     // Public methods for sliders
-    public void SetGravityScale(float value) => playerController.gravityScale = value;
-    public void SetJumpImpulse(float value) => playerController.jumpImpulse = value;
+    public void SetGravityScale(float value)
+    {
+        Debug.Log("Gravity Scale set to: " + value);
+        if (playerController != null)
+        {
+            playerController.gravityScale = value;
+        }
+    }
 
+    public void SetJumpImpulse(float value)
+    {
+        Debug.Log("Jump Impulse set to: " + value);
+        if (playerController != null)
+        {
+            playerController.jumpImpulse = value;
+        }
+    }
 }

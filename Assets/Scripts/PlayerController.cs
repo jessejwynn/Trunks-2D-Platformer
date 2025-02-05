@@ -239,7 +239,6 @@ public class PlayerController : MonoBehaviour
             isClimbing = false;
             animator.SetBool("isClimbing", false); // Stop climbing animation
             rb.gravityScale = gravityScale; // Restore gravity when not climbing
-            Debug.Log("Not on ladder. isClimbing: " + isClimbing);
         }
 
         // Jump logic

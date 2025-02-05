@@ -49,6 +49,8 @@ public class PlayerController : MonoBehaviour
     private bool isLadder = false;
     private bool isClimbing = false;
 
+    public LayerMask oneWayPlatformLayer; // Assign the OneWayPlatform layer in the Inspector
+    private Collider2D playerCollider;
 
     public ParticleSystem dust;
     public ParticleSystem landingPoof;
@@ -155,6 +157,7 @@ public class PlayerController : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
         animator = GetComponent<Animator>();
         touchingDirections = GetComponent<TouchingDirections>();
+        playerCollider = GetComponent<Collider2D>();
     }
 
 
@@ -256,6 +259,16 @@ public class PlayerController : MonoBehaviour
         {
             DoubleJump();
         }
+
+        if (Input.GetKeyDown(KeyCode.S) || Input.GetKeyDown(KeyCode.DownArrow))
+        {
+            // Temporarily disable collisions with one-way platforms
+            Collider2D platform = Physics2D.OverlapCircle(transform.position, 0.1f, oneWayPlatformLayer);
+            if (platform != null)
+            {
+                StartCoroutine(DisableCollision(platform));
+            }
+        }
     }
 
     void FixedUpdate()
@@ -301,6 +314,7 @@ public class PlayerController : MonoBehaviour
                 rb.gravityScale = gravityScale;
             }
 
+            // Wall sliding (only on the Wall layer)
             if (enableWallSlide && touchingDirections.IsOnWall && !touchingDirections.IsGrounded && rb.velocity.y < 0)
             {
                 // Wall sliding
@@ -313,7 +327,9 @@ public class PlayerController : MonoBehaviour
                 animator.SetBool(AnimationStrings.isOnWall, false);
             }
         }
+
         animator.SetFloat(AnimationStrings.yVelocity, rb.velocity.y);
+
     }
 
     public void OnMove(InputAction.CallbackContext context)
@@ -404,8 +420,11 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    private float lastDashTime;
+
     private IEnumerator DashCoroutine()
     {
+        lastDashTime = Time.time; // Record when the dash starts
         canDash = false;
         isDashing = true;
         float originalGravity = rb.gravityScale;
@@ -417,9 +436,13 @@ public class PlayerController : MonoBehaviour
         rb.velocity = new Vector2(0, rb.velocity.y);
         animator.ResetTrigger(AnimationStrings.dashTrigger);
         rb.gravityScale = originalGravity;
+
+        yield return new WaitForSeconds(dashDuration);
+
         isDashing = false;
         yield return new WaitForSeconds(dashCooldown);
         canDash = true;
+
     }
 
     private bool CanJump()
@@ -485,6 +508,28 @@ public class PlayerController : MonoBehaviour
             isClimbing = false;
             Debug.Log("Exited ladder area. isLadder: " + isLadder);
         }
+    }
+
+    private IEnumerator DisableCollision(Collider2D platform)
+    {
+        // Disable collision between the player and the platform
+        Physics2D.IgnoreCollision(playerCollider, platform, true);
+
+        // Wait for a short time (e.g., 0.5 seconds)
+        yield return new WaitForSeconds(0.5f);
+
+        // Re-enable collision
+        Physics2D.IgnoreCollision(playerCollider, platform, false);
+    }
+
+    public float GetDashCooldownPercent()
+    {
+        if (enableDash && !canDash)
+        {
+            // Calculate the cooldown percentage (time remaining / total cooldown duration)
+            return Mathf.Clamp01((Time.time - lastDashTime) / dashCooldown);
+        }
+        return 1; // Fully ready if cooldown is complete
     }
 
 }

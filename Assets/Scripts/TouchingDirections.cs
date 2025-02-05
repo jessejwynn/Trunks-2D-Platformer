@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class TouchingDirections : MonoBehaviour
@@ -9,7 +7,9 @@ public class TouchingDirections : MonoBehaviour
     public float wallDistance = 0.2f;
     public float ceilingDistance = 0.05f;
 
-    CapsuleCollider2D touchingCol; 
+    public LayerMask wallLayer; // Add this line to specify the Wall layer
+
+    CapsuleCollider2D touchingCol;
     Animator animator;
 
     RaycastHit2D[] groundHits = new RaycastHit2D[5];
@@ -18,7 +18,7 @@ public class TouchingDirections : MonoBehaviour
 
     [SerializeField]
     private bool _isGrounded;
-    public bool IsGrounded 
+    public bool IsGrounded
     {
         get { return _isGrounded; }
         private set
@@ -31,7 +31,7 @@ public class TouchingDirections : MonoBehaviour
     [SerializeField]
     private bool _isOnWall;
     private Vector2 wallCheckDirection => gameObject.transform.localScale.x > 0 ? Vector2.right : Vector2.left;
-    public bool IsOnWall 
+    public bool IsOnWall
     {
         get { return _isOnWall; }
         private set
@@ -59,13 +59,14 @@ public class TouchingDirections : MonoBehaviour
         animator = GetComponent<Animator>();
     }
 
-    void FixedUpdate() 
+    void FixedUpdate()
     {
         // Ground detection
         IsGrounded = touchingCol.Cast(Vector2.down, castFilter, groundHits, groundDistance) > 0;
 
-        // Wall detection (only check if not grounded)
-        IsOnWall = !IsGrounded && touchingCol.Cast(wallCheckDirection, castFilter, wallHits, wallDistance) > 0;
+        // Wall detection (only check if not grounded and only on the Wall layer)
+        IsOnWall = !IsGrounded && touchingCol.Cast(wallCheckDirection, castFilter, wallHits, wallDistance) > 0 &&
+                   wallHits[0].collider != null && (wallLayer & (1 << wallHits[0].collider.gameObject.layer)) != 0;
 
         // Ceiling detection (only check if not grounded)
         IsOnCeiling = !IsGrounded && touchingCol.Cast(Vector2.up, castFilter, ceilingHits, ceilingDistance) > 0;

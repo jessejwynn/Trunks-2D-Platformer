@@ -1,3 +1,5 @@
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class TouchingDirections : MonoBehaviour
@@ -6,19 +8,18 @@ public class TouchingDirections : MonoBehaviour
     public float groundDistance = 0.05f;
     public float wallDistance = 0.2f;
     public float ceilingDistance = 0.05f;
-
-    public LayerMask wallLayer; // Add this line to specify the Wall layer
+    
+    public LayerMask wallLayer; // Assign this in the Inspector
 
     CapsuleCollider2D touchingCol;
     Animator animator;
 
     RaycastHit2D[] groundHits = new RaycastHit2D[5];
-    RaycastHit2D[] wallHits = new RaycastHit2D[5];
     RaycastHit2D[] ceilingHits = new RaycastHit2D[5];
 
     [SerializeField]
-    private bool _isGrounded;
-    public bool IsGrounded
+    private bool _isGrounded = true;
+    public bool IsGrounded 
     {
         get { return _isGrounded; }
         private set
@@ -29,8 +30,8 @@ public class TouchingDirections : MonoBehaviour
     }
 
     [SerializeField]
-    private bool _isOnWall;
-    private Vector2 wallCheckDirection => gameObject.transform.localScale.x > 0 ? Vector2.right : Vector2.left;
+    private bool _isOnWall = false;
+    private Vector2 wallCheckDirection => transform.localScale.x > 0 ? Vector2.right : Vector2.left;
     public bool IsOnWall
     {
         get { return _isOnWall; }
@@ -42,7 +43,7 @@ public class TouchingDirections : MonoBehaviour
     }
 
     [SerializeField]
-    private bool _isOnCeiling;
+    private bool _isOnCeiling = false;
     public bool IsOnCeiling
     {
         get { return _isOnCeiling; }
@@ -61,14 +62,24 @@ public class TouchingDirections : MonoBehaviour
 
     void FixedUpdate()
     {
-        // Ground detection
         IsGrounded = touchingCol.Cast(Vector2.down, castFilter, groundHits, groundDistance) > 0;
 
-        // Wall detection (only check if not grounded and only on the Wall layer)
-        IsOnWall = !IsGrounded && touchingCol.Cast(wallCheckDirection, castFilter, wallHits, wallDistance) > 0 &&
-                   wallHits[0].collider != null && (wallLayer & (1 << wallHits[0].collider.gameObject.layer)) != 0;
+        if (!IsGrounded)
+        {
+            // Use Raycast to check ONLY walls in the wallLayer
+            IsOnWall = Physics2D.Raycast(transform.position, wallCheckDirection, wallDistance, wallLayer);
+            IsOnCeiling = touchingCol.Cast(Vector2.up, castFilter, ceilingHits, ceilingDistance) > 0;
+        }
+        else
+        {
+            IsOnWall = false;
+            IsOnCeiling = false;
+        }
+    }
 
-        // Ceiling detection (only check if not grounded)
-        IsOnCeiling = !IsGrounded && touchingCol.Cast(Vector2.up, castFilter, ceilingHits, ceilingDistance) > 0;
+    private void OnDrawGizmos()
+    {
+        Gizmos.color = Color.red;
+        Gizmos.DrawLine(transform.position, transform.position + (Vector3)wallCheckDirection * wallDistance);
     }
 }

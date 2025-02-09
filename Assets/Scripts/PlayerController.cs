@@ -54,9 +54,12 @@ public class PlayerController : MonoBehaviour
 
     public ParticleSystem dust;
     public ParticleSystem landingPoof;
+    public ParticleSystem dashTrail;
+    private bool wasAirborne = false;
 
     // SPAWN & RESET
     public Transform spawnPoint; // Assign this in the Inspector
+    private Vector2 lastCheckpointPosition;
     public float fallThreshold = -10f; // Y-level below which the player resets
 
     Vector2 moveInput;
@@ -158,6 +161,15 @@ public class PlayerController : MonoBehaviour
         animator = GetComponent<Animator>();
         touchingDirections = GetComponent<TouchingDirections>();
         playerCollider = GetComponent<Collider2D>();
+
+        if (spawnPoint != null)
+        {
+            lastCheckpointPosition = spawnPoint.position; // Default spawn point
+        }
+        else
+        {
+            lastCheckpointPosition = transform.position; // Fallback to current position
+        }
     }
 
 
@@ -167,11 +179,19 @@ public class PlayerController : MonoBehaviour
         lastPressedJumpTime -= Time.deltaTime;
         lastOnWallTime -= Time.deltaTime;
 
-        if (touchingDirections.IsGrounded && lastOnGroundTime <= 0)
+        if (touchingDirections.IsGrounded)
         {
-            CreateLandingPoof();
+            if (wasAirborne) // Only play poof when transitioning from air to ground
+            {
+                CreateLandingPoof();
+            }
             lastOnGroundTime = coyoteTime;
-            canDoubleJump = true; // Reset double jump when grounded
+            canDoubleJump = true;
+            wasAirborne = false; // Reset the airborne state
+        }
+        else
+        {
+            wasAirborne = true; // Set to true when leaving the ground
         }
 
         if (Input.GetButtonDown("Jump"))
@@ -423,15 +443,26 @@ public class PlayerController : MonoBehaviour
 
     private IEnumerator DashCoroutine()
     {
-        lastDashTime = Time.time; // Record when the dash starts
+        lastDashTime = Time.time; 
         canDash = false;
         isDashing = true;
+        
         float originalGravity = rb.gravityScale;
         rb.gravityScale = 0f;
+        
         animator.SetTrigger(AnimationStrings.dashTrigger);
+        
         float currentDashSpeed = IsRunning ? runDashSpeed : walkDashSpeed;
         rb.velocity = new Vector2(IsFacingRight ? currentDashSpeed : -currentDashSpeed, 0f);
+        
+        // Play dash trail ONLY if VFX is enabled
+        if (enablePoof && dashTrail != null)
+        {
+            dashTrail.Play();
+        }
+
         yield return new WaitForSeconds(dashDuration);
+
         rb.velocity = new Vector2(0, rb.velocity.y);
         animator.ResetTrigger(AnimationStrings.dashTrigger);
         rb.gravityScale = originalGravity;
@@ -439,10 +470,17 @@ public class PlayerController : MonoBehaviour
         yield return new WaitForSeconds(dashDuration);
 
         isDashing = false;
+
+        // Stop dash trail effect
+        if (dashTrail != null)
+        {
+            dashTrail.Stop();
+        }
+
         yield return new WaitForSeconds(dashCooldown);
         canDash = true;
-
     }
+
 
     private bool CanJump()
     {
@@ -476,19 +514,20 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    private void ResetToSpawn()
+    public void ResetToSpawn()
     {
-        Debug.Log("Player fell below the threshold. Resetting to spawn.");
-        if (spawnPoint != null)
-        {
-            transform.position = spawnPoint.position;
-            rb.velocity = Vector2.zero; // Stop any ongoing movement
-        }
-        else
-        {
-            Debug.LogError("Spawn point is not assigned!");
-        }
+        Debug.Log("Player died. Respawning at last checkpoint.");
+    
+        transform.position = new Vector3(lastCheckpointPosition.x, lastCheckpointPosition.y, transform.position.z);
+        rb.velocity = Vector2.zero; // Reset movement
     }
+
+    public void SetCheckpoint(Vector2 checkpointPosition)
+    {
+        lastCheckpointPosition = checkpointPosition;
+        Debug.Log("checkpoint set" + lastCheckpointPosition);
+    }
+
 
     private void OnTriggerEnter2D(Collider2D collision)
     {

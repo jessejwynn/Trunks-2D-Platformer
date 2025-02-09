@@ -113,6 +113,12 @@ public class OptionsMenu : MonoBehaviour
         if (playerController != null)
         {
             playerController.enablePoof = isOn;
+
+            // Disable the dash trail VFX when Poof is off
+            if (!isOn && playerController.dashTrail != null)
+            {
+                playerController.dashTrail.Stop();
+            }
         }
     }
 

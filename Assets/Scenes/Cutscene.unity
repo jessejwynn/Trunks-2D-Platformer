@@ -417,7 +417,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   timeline: {fileID: 2143516993}
-  nextSceneName: Tutorial
+  nextSceneName: Cutscene2
 --- !u!4 &1197833942
 Transform:
   m_ObjectHideFlags: 0

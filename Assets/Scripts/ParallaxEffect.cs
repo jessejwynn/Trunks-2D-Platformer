@@ -27,6 +27,17 @@ public class ParallaxEffect : MonoBehaviour
     {
         startingPosition = transform.position;
         startingZ = transform.position.z;
+
+        // Automatically find the player if not assigned
+        if (followTarget == null)
+        {
+            followTarget = GameObject.FindGameObjectWithTag("Player")?.transform;
+
+            if (followTarget == null)
+            {
+                Debug.LogError("ERROR: No object with tag 'Player' found! Assign followTarget manually.");
+            }
+        }
     }
 
     // Update is called once per frame

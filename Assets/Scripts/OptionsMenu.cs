@@ -11,6 +11,8 @@ public class OptionsMenu : MonoBehaviour
     public Toggle slideToggle;
     public Toggle wallJumpToggle;
     public Toggle poofToggle;
+    public Toggle accelerationToggle; // ✅ NEW: Toggle for acceleration
+    public Toggle frictionToggle; // ✅ NEW: Toggle for friction
 
     // References to sliders
     public Slider gravityScaleSlider;
@@ -21,18 +23,18 @@ public class OptionsMenu : MonoBehaviour
 
     public void Start()
     {
-        Debug.Log("Checking PlayerController...");
+        // Debug.Log("Checking PlayerController...");
         if (playerController == null) Debug.LogError("PlayerController is not assigned!");
 
-        Debug.Log("Checking Toggles...");
-        if (doubleJumpToggle == null) Debug.LogError("DoubleJumpToggle is not assigned!");
-        if (wallSlideToggle == null) Debug.LogError("WallSlideToggle is not assigned!");
-        if (dashToggle == null) Debug.LogError("DashToggle is not assigned!");
-        if (slideToggle == null) Debug.LogError("SlideToggle is not assigned!");
-        if (wallJumpToggle == null) Debug.LogError("WallJumpToggle is not assigned!");
-        if (poofToggle == null) Debug.LogError("PoofToggle is not assigned!");
+        // Debug.Log("Checking Toggles...");
+        // if (doubleJumpToggle == null) Debug.LogError("DoubleJumpToggle is not assigned!");
+        // if (wallSlideToggle == null) Debug.LogError("WallSlideToggle is not assigned!");
+        // if (dashToggle == null) Debug.LogError("DashToggle is not assigned!");
+        // if (slideToggle == null) Debug.LogError("SlideToggle is not assigned!");
+        // if (wallJumpToggle == null) Debug.LogError("WallJumpToggle is not assigned!");
+        // if (poofToggle == null) Debug.LogError("PoofToggle is not assigned!");
 
-        Debug.Log("Checking Sliders...");
+        // Debug.Log("Checking Sliders...");
         if (gravityScaleSlider == null) Debug.LogError("GravityScaleSlider is not assigned!");
         if (jumpImpulseSlider == null) Debug.LogError("JumpImpulseSlider is not assigned!");
 
@@ -43,6 +45,8 @@ public class OptionsMenu : MonoBehaviour
         slideToggle.isOn = playerController.enableSlide;
         wallJumpToggle.isOn = playerController.enableWallJump;
         poofToggle.isOn = playerController.enablePoof;
+        accelerationToggle.isOn = playerController.enableAcceleration; // ✅ Initialize acceleration toggle
+        frictionToggle.isOn = playerController.enableFriction; 
 
         // Initialize sliders with current values
         gravityScaleSlider.value = playerController.gravityScale;
@@ -55,6 +59,9 @@ public class OptionsMenu : MonoBehaviour
         slideToggle.onValueChanged.AddListener(SetSlide);
         wallJumpToggle.onValueChanged.AddListener(SetWallJump);
         poofToggle.onValueChanged.AddListener(SetPoof);
+        accelerationToggle.onValueChanged.AddListener(SetAcceleration); // ✅ Add listener
+        frictionToggle.onValueChanged.AddListener(SetFriction); // ✅ Add listener
+
 
         // Add listeners for sliders
         gravityScaleSlider.onValueChanged.AddListener(SetGravityScale);
@@ -121,6 +128,19 @@ public class OptionsMenu : MonoBehaviour
             }
         }
     }
+
+    public void SetAcceleration(bool isOn)
+    {
+        Debug.Log("Acceleration toggled: " + isOn);
+        if (playerController != null) playerController.enableAcceleration = isOn;
+    }
+
+    public void SetFriction(bool isOn)
+    {
+        Debug.Log("Friction toggled: " + isOn);
+        if (playerController != null) playerController.enableFriction = isOn;
+    }
+
 
     // Public methods for sliders
     public void SetGravityScale(float value)

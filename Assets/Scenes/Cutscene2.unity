@@ -329,31 +329,31 @@ MonoBehaviour:
   - text: Morning, Trunks!
     characterSprite: {fileID: 21300000, guid: b51839e1662824c32918bc3d2a9db630, type: 3}
     cutsceneSprite: {fileID: 21300000, guid: 5ba38a883fe7540c589bc5569faed271, type: 3}
-  - text: Everyone's up and ready to start the day!
+  - text: The village is already up and busy!
     characterSprite: {fileID: 21300000, guid: b51839e1662824c32918bc3d2a9db630, type: 3}
     cutsceneSprite: {fileID: 21300000, guid: 5ba38a883fe7540c589bc5569faed271, type: 3}
-  - text: Froggo and Hopps are gathering material for tomorrow's celebration.
+  - text: "Froggo and Hopps are getting decorations ready for tomorrow\u2019s festival."
     characterSprite: {fileID: 21300000, guid: b51839e1662824c32918bc3d2a9db630, type: 3}
     cutsceneSprite: {fileID: 21300000, guid: fc9a84addeb884a2d94898beaac14272, type: 3}
-  - text: 'Let''s go harvest the strawberries. '
+  - text: How about we grab some strawberries for the feast?
     characterSprite: {fileID: 21300000, guid: b51839e1662824c32918bc3d2a9db630, type: 3}
     cutsceneSprite: {fileID: 21300000, guid: fc9a84addeb884a2d94898beaac14272, type: 3}
   - text: 
     characterSprite: {fileID: 0}
     cutsceneSprite: {fileID: 21300000, guid: b9f4fbbfc82e74b2db8979aace256665, type: 3}
-  - text: Morning, Trunks! Happy birthday!
+  - text: 'Morning, Trunks! '
     characterSprite: {fileID: 21300000, guid: b51839e1662824c32918bc3d2a9db630, type: 3}
     cutsceneSprite: {fileID: 21300000, guid: 3443f5fe86c5c47b9a2001654fd53936, type: 3}
   - text: ^o^ *happy Trunk noises*
     characterSprite: {fileID: 21300000, guid: 1e66b53b39a6d44769e2fafc69b6a8d7, type: 3}
     cutsceneSprite: {fileID: 21300000, guid: 3443f5fe86c5c47b9a2001654fd53936, type: 3}
-  - text: Hmm, that's strange.. no one's here.
+  - text: Wait, where's everyone?
     characterSprite: {fileID: 21300000, guid: b51839e1662824c32918bc3d2a9db630, type: 3}
     cutsceneSprite: {fileID: 21300000, guid: 3443f5fe86c5c47b9a2001654fd53936, type: 3}
-  - text: Look, there's grizz!
+  - text: "Look\u2014over there! It\u2019s Grizz!"
     characterSprite: {fileID: 21300000, guid: b51839e1662824c32918bc3d2a9db630, type: 3}
     cutsceneSprite: {fileID: 21300000, guid: ca860b8cf3304400a8d661b52f221fef, type: 3}
-  - text: GRIZZ!
+  - text: Grizz? Hey, Grizz!
     characterSprite: {fileID: 21300000, guid: b51839e1662824c32918bc3d2a9db630, type: 3}
     cutsceneSprite: {fileID: 21300000, guid: dcaf4f6248fba4be291ec1098e526664, type: 3}
   - text: ...
@@ -374,10 +374,13 @@ MonoBehaviour:
   - text: '*high pitched Trunks noises*'
     characterSprite: {fileID: 21300000, guid: bc18159b7398b46dfbb0ea59659e6b3d, type: 3}
     cutsceneSprite: {fileID: 21300000, guid: f44639be8bf20488da52b212718d2245, type: 3}
-  - text: Yea, he can't hear us.
+  - text: Yea, he can't
     characterSprite: {fileID: 21300000, guid: b51839e1662824c32918bc3d2a9db630, type: 3}
     cutsceneSprite: {fileID: 21300000, guid: f44639be8bf20488da52b212718d2245, type: 3}
-  - text: Let's follow him
+  - text: Or he's ignoring your painfully loud screech.
+    characterSprite: {fileID: 21300000, guid: b51839e1662824c32918bc3d2a9db630, type: 3}
+    cutsceneSprite: {fileID: 21300000, guid: e7aa80cd0fcc543dab7a92c386d2fdc7, type: 3}
+  - text: C'mon, let's follow him
     characterSprite: {fileID: 21300000, guid: b51839e1662824c32918bc3d2a9db630, type: 3}
     cutsceneSprite: {fileID: 21300000, guid: e7aa80cd0fcc543dab7a92c386d2fdc7, type: 3}
   - text: '*Sad Trunks noises*'
@@ -799,8 +802,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4281283900
-  m_fontColor: {r: 0.23584908, g: 0.20659645, b: 0.18356179, a: 1}
+    rgba: 4282932323
+  m_fontColor: {r: 0.38679248, g: 0.36259887, b: 0.28279638, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:

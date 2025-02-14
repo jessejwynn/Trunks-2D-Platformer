@@ -67,7 +67,8 @@ public class TouchingDirections : MonoBehaviour
         if (!IsGrounded)
         {
             // Use Raycast to check ONLY walls in the wallLayer
-            IsOnWall = Physics2D.Raycast(transform.position, wallCheckDirection, wallDistance, wallLayer);
+            IsOnWall = touchingCol.Cast(wallCheckDirection, castFilter, groundHits, wallDistance) > 0;
+
             IsOnCeiling = touchingCol.Cast(Vector2.up, castFilter, ceilingHits, ceilingDistance) > 0;
         }
         else

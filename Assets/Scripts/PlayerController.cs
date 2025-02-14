@@ -191,6 +191,42 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    void Start()
+    {
+        rb = GetComponent<Rigidbody2D>();
+
+        string currentScene = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
+
+        // If in the tutorial, reset all checkpoint data
+        if (currentScene == "Tutorial")
+        {
+            Debug.Log("Tutorial started! Resetting all checkpoint data.");
+            PlayerPrefs.DeleteAll(); // Clears all saved checkpoints
+            PlayerPrefs.Save();
+        }
+
+        Vector3 spawnPosition;
+
+        // Check if there's a checkpoint for THIS specific level
+        if (PlayerPrefs.HasKey(currentScene + "_CheckpointX"))
+        {
+            float x = PlayerPrefs.GetFloat(currentScene + "_CheckpointX");
+            float y = PlayerPrefs.GetFloat(currentScene + "_CheckpointY");
+            spawnPosition = new Vector3(x, y, 0);
+            Debug.Log($"Respawning at checkpoint for {currentScene}: {spawnPosition}");
+        }
+        else
+        {
+            // Default to SpawnPoint
+            GameObject spawnPoint = GameObject.Find("SpawnPoint");
+            spawnPosition = spawnPoint ? spawnPoint.transform.position : Vector3.zero;
+            Debug.Log($"No checkpoint found, spawning at default position: {spawnPosition}");
+        }
+
+        transform.position = spawnPosition;
+    }
+
+
 
     private void Update()
     {
@@ -575,17 +611,42 @@ public class PlayerController : MonoBehaviour
 
     public void ResetToSpawn()
     {
-        Debug.Log("Player died. Respawning at last checkpoint.");
-    
-        transform.position = new Vector3(lastCheckpointPosition.x, lastCheckpointPosition.y, transform.position.z);
+        string currentScene = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
+
+        Vector3 respawnPosition;
+
+        if (PlayerPrefs.HasKey(currentScene + "_CheckpointX"))
+        {
+            float x = PlayerPrefs.GetFloat(currentScene + "_CheckpointX");
+            float y = PlayerPrefs.GetFloat(currentScene + "_CheckpointY");
+            respawnPosition = new Vector3(x, y, 0);
+            Debug.Log($"Respawning at last checkpoint: {respawnPosition}");
+        }
+        else
+        {
+            GameObject spawnPoint = GameObject.Find("SpawnPoint");
+            respawnPosition = spawnPoint ? spawnPoint.transform.position : Vector3.zero;
+            Debug.Log($"No checkpoint found, respawning at start position: {respawnPosition}");
+        }
+
+        transform.position = respawnPosition;
         rb.velocity = Vector2.zero; // Reset movement
     }
 
+
     public void SetCheckpoint(Vector2 checkpointPosition)
     {
-        lastCheckpointPosition = checkpointPosition;
-        Debug.Log("checkpoint set" + lastCheckpointPosition);
+        string currentScene = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
+
+        PlayerPrefs.SetFloat(currentScene + "_CheckpointX", checkpointPosition.x);
+        PlayerPrefs.SetFloat(currentScene + "_CheckpointY", checkpointPosition.y);
+        PlayerPrefs.SetString("LastCheckpointScene", currentScene);
+        PlayerPrefs.Save();
+
+        Debug.Log($"Checkpoint set at: {checkpointPosition} in scene: {currentScene}");
     }
+
+
 
 
     private void OnTriggerEnter2D(Collider2D collision)

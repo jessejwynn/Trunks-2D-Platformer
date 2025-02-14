@@ -726,6 +726,7 @@ public class PlayerController : MonoBehaviour
                 walkDashSpeed = 17f;
                 runDashSpeed = 28f;
                 friction = 3f;
+                enableFriction = true;
                 break;
 
             case "LevelC":
@@ -738,6 +739,7 @@ public class PlayerController : MonoBehaviour
                 walkDashSpeed = 10f;
                 runDashSpeed = 20f;
                 friction = 7f;
+                enableFriction = true;
                 break;
 
             default: // Level A / Normal
@@ -750,6 +752,7 @@ public class PlayerController : MonoBehaviour
                 walkDashSpeed = 15f;
                 runDashSpeed = 25f;
                 friction = 0f;
+                enableFriction = false;
                 break;
         }
 

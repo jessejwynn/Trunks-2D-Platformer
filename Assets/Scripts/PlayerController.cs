@@ -8,8 +8,8 @@ public class PlayerController : MonoBehaviour
 {
     public float walkSpeed = 10f;
     public float runSpeed = 15f;
-    public float airWalkSpeed = 8f;
-    public float jumpImpulse = 25f;
+    public float airWalkSpeed = 9f;
+    public float jumpImpulse = 28f;
     public float wallSlideSpeed = 7f;
     public float gravityScale = 3f;
     public float maxFallSpeed = -15f;
@@ -21,8 +21,8 @@ public class PlayerController : MonoBehaviour
     public float slideAccel = 10f;
     public float jumpCutMultiplier = 0.5f; // Multiplier to control jump height when releasing early
 
-    public float acceleration = 5f; // ✅ Acceleration strength
-    public float friction = 5f; // ✅ Friction strength
+    public float acceleration = 0f; // ✅ Acceleration strength
+    public float friction = 0f; // ✅ Friction strength
     private float currentSpeed = 0f; // ✅ Stores the current movement speed
 
 
@@ -197,7 +197,12 @@ public class PlayerController : MonoBehaviour
 
         string currentScene = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
 
-        // If in the tutorial, reset all checkpoint data
+        // ✅ FORCE APPLY PHYSICS IMMEDIATELY
+        ApplyScenePhysics(currentScene);
+        
+        Debug.Log($"Start() called in PlayerController - Current Scene: {currentScene}");
+
+        // ✅ Check if in the Tutorial, then reset all checkpoint data
         if (currentScene == "Tutorial")
         {
             Debug.Log("Tutorial started! Resetting all checkpoint data.");
@@ -207,7 +212,7 @@ public class PlayerController : MonoBehaviour
 
         Vector3 spawnPosition;
 
-        // Check if there's a checkpoint for THIS specific level
+        // ✅ Ensure the correct spawn position
         if (PlayerPrefs.HasKey(currentScene + "_CheckpointX"))
         {
             float x = PlayerPrefs.GetFloat(currentScene + "_CheckpointX");
@@ -217,14 +222,17 @@ public class PlayerController : MonoBehaviour
         }
         else
         {
-            // Default to SpawnPoint
+            // ✅ Default to SpawnPoint
             GameObject spawnPoint = GameObject.Find("SpawnPoint");
             spawnPosition = spawnPoint ? spawnPoint.transform.position : Vector3.zero;
             Debug.Log($"No checkpoint found, spawning at default position: {spawnPosition}");
         }
 
         transform.position = spawnPosition;
+        rb.gravityScale = gravityScale; // ✅ Ensure gravity is updated after repositioning
     }
+
+
 
 
 
@@ -234,6 +242,12 @@ public class PlayerController : MonoBehaviour
         lastPressedJumpTime -= Time.deltaTime;
         lastOnWallTime -= Time.deltaTime;
 
+        if (Input.GetKeyDown(KeyCode.P)) // Press "P" to manually apply physics settings
+        {
+            string currentScene = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
+            ApplyScenePhysics(currentScene);
+            Debug.Log($"Manually Applied Scene Physics in {currentScene}");
+        }
         if (touchingDirections.IsGrounded)
         {
             if (wasAirborne)
@@ -323,13 +337,13 @@ public class PlayerController : MonoBehaviour
 
         if (!isDashing)
         {
-            if (Mathf.Abs(currentSpeed) > 0.1f)
+            if (Mathf.Abs(rb.velocity.x) > 0.1f && moveInput.x == 0)
             {
-                animator.SetBool("isMoving", true);
+                animator.SetBool("isMoving", false); // Switch to Idle
             }
             else
             {
-                animator.SetBool("isMoving", false);
+                animator.SetBool("isMoving", Mathf.Abs(rb.velocity.x) > 0.1f); // Normal movement animation
             }
         }
         
@@ -382,7 +396,7 @@ public class PlayerController : MonoBehaviour
 
     void FixedUpdate()
     {
-    if (isClimbing)
+        if (isClimbing)
         {
             rb.gravityScale = 0f; // Completely disable gravity
 
@@ -423,6 +437,16 @@ public class PlayerController : MonoBehaviour
                 rb.gravityScale = gravityScale;
             }
 
+            // ✅ **Friction Implementation**
+            if (Mathf.Abs(moveInput.x) > 0.1f) // Player is pressing movement keys
+            {
+                rb.velocity = Vector2.Lerp(rb.velocity, new Vector2(moveInput.x * CurrentMoveSpeed, rb.velocity.y), lerpSpeed * Time.fixedDeltaTime);
+            }
+            else // No input, apply friction
+            {
+                rb.velocity = new Vector2(Mathf.Lerp(rb.velocity.x, 0, friction * Time.fixedDeltaTime), rb.velocity.y);
+            }
+
             // Wall sliding (only on the Wall layer)
             if (enableWallSlide && touchingDirections.IsOnWall && !touchingDirections.IsGrounded && rb.velocity.y < 0)
             {
@@ -432,17 +456,13 @@ public class PlayerController : MonoBehaviour
             }
             else
             {
-                rb.velocity = Vector2.Lerp(rb.velocity, new Vector2(moveInput.x * CurrentMoveSpeed, rb.velocity.y), lerpSpeed * Time.fixedDeltaTime);
                 animator.SetBool(AnimationStrings.isOnWall, false);
             }
-
-       
-
         }
 
         animator.SetFloat(AnimationStrings.yVelocity, rb.velocity.y);
-
     }
+
 
     public void OnMove(InputAction.CallbackContext context)
     {
@@ -689,5 +709,56 @@ public class PlayerController : MonoBehaviour
         }
         return 1; // Fully ready if cooldown is complete
     }
+
+    void ApplyScenePhysics(string sceneName)
+    {
+        Debug.Log($"Applying physics settings for {sceneName}");
+
+        switch (sceneName)
+        {
+            case "LevelB":
+                walkSpeed = 12f;
+                runSpeed = 16f;
+                airWalkSpeed = 10f;
+                jumpImpulse = 25f;
+                climbSpeed = 15f;
+                gravityScale = 1.8f;
+                walkDashSpeed = 17f;
+                runDashSpeed = 28f;
+                friction = 3f;
+                break;
+
+            case "LevelC":
+                walkSpeed = 5f;
+                runSpeed = 10f;
+                airWalkSpeed = 5f;
+                jumpImpulse = 30f;
+                climbSpeed = 7f;
+                gravityScale = 4f;
+                walkDashSpeed = 10f;
+                runDashSpeed = 20f;
+                friction = 7f;
+                break;
+
+            default: // Level A / Normal
+                walkSpeed = 10f;
+                runSpeed = 15f;
+                airWalkSpeed = 8f;
+                jumpImpulse = 28f;
+                climbSpeed = 10f;
+                gravityScale = 3f;
+                walkDashSpeed = 15f;
+                runDashSpeed = 25f;
+                friction = 0f;
+                break;
+        }
+
+        // ✅ Force Rigidbody update after changes
+        rb.gravityScale = gravityScale;
+        rb.velocity = Vector2.zero; // Prevents old physics from carrying over
+
+        Debug.Log($"Updated Physics: Walk={walkSpeed}, Run={runSpeed}, Jump={jumpImpulse}, Gravity={gravityScale}, Climb={climbSpeed}, Friction={friction}");
+    }
+
 
 }

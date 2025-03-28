@@ -1,6 +1,6 @@
 # Readme
 
-TrunksMcDuncan/
+Trunks-2D-Platformer/
 - Assets/            # Contains all game assets (Scenes, Scripts, Sprites, Animations, Prefabs, etc.)
 - Packages/          # Unity Package Manager files
 - ProjectSettings/    # Unity project settings

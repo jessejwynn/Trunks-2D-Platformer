@@ -1,10 +1,10 @@
 # Readme
 
 TrunksMcDuncan/
-├── Assets/            # Contains all game assets (Scenes, Scripts, Sprites, Animations, Prefabs, etc.)
-├── Packages/          # Unity Package Manager files
-├── ProjectSettings/    # Unity project settings
-├── Misc Files/  	#Other files
+- Assets/            # Contains all game assets (Scenes, Scripts, Sprites, Animations, Prefabs, etc.)
+- Packages/          # Unity Package Manager files
+- ProjectSettings/    # Unity project settings
+- Misc Files/  	#Other files
 
 ## Build instructions
 
